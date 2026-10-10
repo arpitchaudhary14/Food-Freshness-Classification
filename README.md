@@ -24,6 +24,13 @@ This project uses the official **Freshness44** dataset for training and validati
 - **Performance:** Achieved highly accurate validation accuracy on complex real-world datasets.
 - **Explainability:** Utilizes Gradient-weighted Class Activation Mapping (Grad-CAM) to provide transparent AI decision-making.
 
+### Model Evaluation Metrics
+| Metric | Accuracy |
+|--------|----------|
+| **Training Accuracy** | 98.09% |
+| **Validation Accuracy** | 98.43% |
+| **Held-out Test Accuracy** | **98.56%** |
+
 ### Reproduction Parameters
 If you wish to reproduce our training results using the `Food_Freshness_EfficientNetB0_Final_Clean.ipynb` notebook, here are the key parameters we used:
 - **Optimizer:** Adam (Learning Rate: `1e-4`)
