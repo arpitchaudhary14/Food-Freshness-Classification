@@ -86,7 +86,7 @@ docker pull arpit00011/freshfind-frontend:latest
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/Food-Freshness-Classification.git
+git clone https://github.com/arpitchaudhary14/Food-Freshness-Classification.git
 cd Food-Freshness-Classification
 ```
 
