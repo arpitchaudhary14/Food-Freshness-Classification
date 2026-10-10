@@ -1,0 +1,6 @@
+model:
+  name: "EfficientNetB0"
+  input_shape: [224, 224, 3]
+  classes: 2
+  class_names: ["Fresh", "Rotten"]
+  categories: 22

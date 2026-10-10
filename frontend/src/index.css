@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream-50 text-navy-900 font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-sage-500 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-sage-600 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-500 active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-semibold text-sage-700 shadow-soft border border-sage-100 hover:bg-sage-50 hover:border-sage-200 transition-all duration-200 active:scale-95;
+  }
+  
+  .card {
+    @apply bg-white rounded-2xl shadow-soft border border-cream-100 p-6;
+  }
+  
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-white/50 rounded-2xl shadow-float;
+  }
+}
+
+@layer base {
+  .dark body {
+    @apply bg-navy-950 text-gray-100;
+  }
+  
+  .dark .bg-cream-50, .dark .bg-white, .dark .bg-cream-100 {
+    @apply bg-navy-900 border-navy-800 text-gray-100;
+  }
+
+  .dark .text-navy-900, .dark .text-gray-600, .dark .text-gray-500 {
+    @apply text-gray-200;
+  }
+
+  .dark .card {
+    @apply bg-navy-900 border-navy-800 text-gray-100;
+  }
+  
+  .dark input {
+    @apply bg-navy-800 border-navy-700 text-white placeholder-gray-500;
+  }
+  
+  .dark table th {
+    @apply bg-navy-950 text-gray-300 border-navy-800;
+  }
+  
+  .dark table td {
+    @apply border-navy-800;
+  }
+  
+  .dark .hover\:bg-cream-50:hover, .dark .hover\:bg-cream-100:hover {
+    @apply hover:bg-navy-800;
+  }
+  
+  .dark .border-cream-100, .dark .border-cream-200 {
+    @apply border-navy-800;
+  }
+  
+  .dark .btn-secondary {
+    @apply bg-navy-800 text-sage-400 border-navy-700 hover:bg-navy-700 hover:text-white;
+  }
+  
+  .dark .btn-primary {
+    @apply text-white;
+  }
+}

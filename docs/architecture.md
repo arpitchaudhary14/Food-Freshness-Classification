@@ -1,0 +1,1 @@
+# Architecture\n\nBackend: FastAPI\nFrontend: React + Vite + Tailwind
