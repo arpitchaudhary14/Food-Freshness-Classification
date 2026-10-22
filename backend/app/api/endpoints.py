@@ -20,15 +20,33 @@ async def predict(file: UploadFile = File(...), current_user: dict = Depends(get
     
     try:
         content = await file.read()
-        freshness, confidence, _ = prediction_service.predict(content)
         
-        # Identify the actual food item name using Gemini
-        category = gemini_service.identify_produce(content)
-        if not category or category.lower() in ["unknown", "produce", "food", "none", "n/a", "unknown produce", "analyzed produce", "food item"]:
+        # Smart Dual-Engine Routing:
+        # 1. Identify food item and determine domain (raw produce vs prepared/cooked/non-veg)
+        analysis = gemini_service.analyze_food_and_freshness(content)
+        category = analysis.get("name") or "Unidentified Item"
+        if not category or category.lower() in ["unknown", "produce", "food", "none", "n/a", "unknown produce", "analyzed produce", "food item", "joke item"]:
             category = "Unidentified Item"
-        
+            
+        is_produce = analysis.get("is_raw_produce", False)
+
+        if is_produce:
+            # Domain 1: Raw Agricultural Produce -> Keras CNN Model (Produce Freshness Expert)
+            try:
+                freshness, confidence_val, _ = prediction_service.predict(content)
+            except Exception:
+                freshness = analysis.get("freshness", "FRESH")
+                confidence_val = analysis.get("confidence", 0.90)
+        else:
+            # Domain 2: Cooked Food, Fast Food, Meat, Poultry, Seafood, Bakery, Street Food
+            # -> Gemini Multimodal AI (Culinary Safety Expert)
+            freshness = analysis.get("freshness", "FRESH")
+            confidence_val = analysis.get("confidence", 0.95)
+            if not freshness or confidence_val is None or confidence_val <= 0:
+                freshness, confidence_val, _ = prediction_service.predict(content)
+
         # Format confidence as percentage
-        confidence_str = f"{confidence * 100:.2f}%"
+        confidence_str = f"{confidence_val * 100:.2f}%"
         
         # Save to history with image
         img_b64 = base64.b64encode(content).decode('utf-8')
