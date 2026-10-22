@@ -91,6 +91,9 @@ export default function LoginPage() {
           onSuccess={async (credentialResponse) => {
             try {
               setLoading(true);
+              if (!credentialResponse?.credential) {
+                throw new Error('Google did not return credentials. Please try again.');
+              }
               const response = await authService.googleLogin(credentialResponse.credential);
               login(response.user, response.access_token);
               addToast('Logged in with Google successfully');
@@ -102,9 +105,10 @@ export default function LoginPage() {
             }
           }}
           onError={() => {
-            setError('Google Login Failed');
+            setError('Google Sign-In was cancelled or failed to initialize.');
           }}
-          useOneTap
+          theme="filled_blue"
+          shape="pill"
         />
       </div>
 

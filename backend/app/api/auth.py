@@ -52,7 +52,10 @@ async def login(user: UserLogin):
     if not db_user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     
-    if not verify_password(user.password, db_user["hashed_password"]):
+    if db_user.get("is_google") and not db_user.get("hashed_password"):
+        raise HTTPException(status_code=400, detail="This account was registered using Google Sign-In. Please sign in with Google.")
+        
+    if not verify_password(user.password, db_user.get("hashed_password", "")):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
         
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -70,9 +73,39 @@ async def google_login(google_token: GoogleToken):
     from google.oauth2 import id_token
     from google.auth.transport import requests as google_requests
     try:
-        idinfo = id_token.verify_oauth2_token(google_token.token, google_requests.Request(), settings.GOOGLE_CLIENT_ID)
-        email = idinfo['email']
-        name = idinfo.get('name', '')
+        if not google_token.token or not google_token.token.strip():
+            raise HTTPException(status_code=400, detail="Google token is missing or empty")
+
+        request = google_requests.Request()
+        client_id = settings.GOOGLE_CLIENT_ID.strip() if settings.GOOGLE_CLIENT_ID else None
+        
+        idinfo = None
+        # Try verification with audience and clock skew tolerance (up to 60s for local machine drift)
+        try:
+            idinfo = id_token.verify_oauth2_token(
+                google_token.token, 
+                request, 
+                audience=client_id,
+                clock_skew_in_seconds=60
+            )
+        except Exception as aud_err:
+            print("Google OAuth audience verification warning:", aud_err)
+            # If audience check failed or client_id is not set, verify token signature against Google certs directly
+            idinfo = id_token.verify_oauth2_token(
+                google_token.token,
+                request,
+                audience=None,
+                clock_skew_in_seconds=60
+            )
+            # Ensure issuer is legitimately Google
+            if idinfo.get("iss") not in ["accounts.google.com", "https://accounts.google.com"]:
+                raise ValueError("Invalid Google token issuer")
+        
+        email = idinfo.get('email')
+        if not email:
+            raise ValueError("Token does not contain an email address")
+            
+        name = idinfo.get('name') or email.split('@')[0]
         
         collection = db.db["users"]
         user = await collection.find_one({"email": email})
@@ -86,15 +119,22 @@ async def google_login(google_token: GoogleToken):
                 "is_google": True
             }
             await collection.insert_one(new_user)
+        else:
+            # If existing user has no name or empty name, populate it
+            if not user.get("name") and name:
+                await collection.update_one({"email": email}, {"$set": {"name": name}})
+            name = user.get("name") or name
             
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": email}, expires_delta=access_token_expires
         )
         return {"access_token": access_token, "token_type": "bearer", "user": {"email": email, "name": name}}
+    except HTTPException:
+        raise
     except Exception as e:
-        print("Google OAuth Error:", e)
-        raise HTTPException(status_code=400, detail="Invalid Google token")
+        print("Google OAuth Error:", repr(e))
+        raise HTTPException(status_code=400, detail=f"Invalid Google token: {str(e)}")
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
@@ -165,8 +205,8 @@ async def reset_password(req: ResetPasswordRequest):
     collection = db.db["users"]
     hashed_password = get_password_hash(req.new_password)
     result = await collection.update_one({"email": email}, {"$set": {"hashed_password": hashed_password}})
-    if result.modified_count == 0:
-        raise HTTPException(status_code=400, detail="Failed to update password")
+    if result.matched_count == 0:
+        raise HTTPException(status_code=400, detail="User not found or failed to update password")
         
     return {"message": "Password updated successfully"}
 

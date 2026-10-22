@@ -71,6 +71,27 @@ const guideData = [
     category: 'Vegetables',
     icon: <ThermometerSnowflake className="w-5 h-5 text-green-500" />,
     advice: 'Store in the warmest part of the fridge (usually the front or door) wrapped in a paper towel inside a loose bag.',
+  },
+  {
+    id: 11,
+    title: 'Leftover Pizza',
+    category: 'Fast Food',
+    icon: <ThermometerSnowflake className="w-5 h-5 text-red-500" />,
+    advice: 'Refrigerate within 2 hours wrapped in foil or an airtight container. Stays fresh for 3-4 days in fridge, or up to 2 months frozen. Reheat to 165°F.',
+  },
+  {
+    id: 12,
+    title: 'Burgers & Sandwiches',
+    category: 'Fast Food',
+    icon: <ThermometerSnowflake className="w-5 h-5 text-amber-600" />,
+    advice: 'Store cooked patties and burgers in airtight containers at or below 40°F (4°C). Consume within 3 days. Keep wet sauces separate if prepping in advance.',
+  },
+  {
+    id: 13,
+    title: 'French Fries',
+    category: 'Fast Food',
+    icon: <Droplets className="w-5 h-5 text-yellow-500" />,
+    advice: 'Cool completely, line container with paper towels to absorb oil, and seal tightly. Keep refrigerated for up to 3 days. Reheat in an oven or air fryer.',
   }
 ];
 
@@ -111,13 +132,13 @@ export default function GuidePage() {
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 min-h-[80vh]">
       <div>
         <h1 className="text-4xl font-display font-bold text-navy-900 mb-2">Interactive Food Guide</h1>
-        <p className="text-gray-500 text-lg">Search for your produce to get instant, interactive storage advice.</p>
+        <p className="text-gray-500 text-lg">Search for fruits, vegetables, or fast foods to get instant storage advice.</p>
       </div>
 
       <div className="bg-blue-50/80 border border-blue-100 rounded-2xl p-5 flex items-start space-x-4 shadow-sm">
         <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
         <div className="text-sm text-blue-900">
-          <strong>Tip:</strong> This interactive guide helps you quickly lookup standard handling procedures to keep your groceries fresh longer! If you don't see it here, you can ask FreshFind AI!
+          <strong>Tip:</strong> This interactive guide helps you quickly lookup standard handling procedures to keep your groceries and meals fresh longer! If you don't see it here, you can ask FreshFind AI!
         </div>
       </div>
 
@@ -125,7 +146,7 @@ export default function GuidePage() {
         <Search className="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
         <input 
           type="text" 
-          placeholder="Search for apples, tomatoes, greens..." 
+          placeholder="Search for apples, pizza, burgers, greens..." 
           value={searchTerm}
           onChange={handleSearchChange}
           className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-cream-200 focus:outline-none focus:ring-4 focus:ring-sage-500/20 focus:border-sage-500 bg-white text-lg shadow-soft transition-all"

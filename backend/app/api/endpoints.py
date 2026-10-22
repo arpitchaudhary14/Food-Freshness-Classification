@@ -22,8 +22,10 @@ async def predict(file: UploadFile = File(...), current_user: dict = Depends(get
         content = await file.read()
         freshness, confidence, _ = prediction_service.predict(content)
         
-        # Identify the actual produce name using Gemini
+        # Identify the actual food item name using Gemini
         category = gemini_service.identify_produce(content)
+        if not category or category.lower() in ["unknown", "produce", "food", "none", "n/a", "unknown produce", "analyzed produce", "food item"]:
+            category = "Unidentified Item"
         
         # Format confidence as percentage
         confidence_str = f"{confidence * 100:.2f}%"
@@ -77,7 +79,7 @@ async def get_history(current_user: dict = Depends(get_current_user)):
             "id": str(doc["_id"]), # Full ID for deletion
             "short_id": str(doc["_id"])[-6:].upper(), # Short ID for UI view
             "date": doc["date"],
-            "item": doc.get("item", "Produce"),
+            "item": doc.get("item") or "Unidentified Item",
             "verdict": doc["verdict"],
             "confidence": doc["confidence"],
             "image": doc.get("image", None)

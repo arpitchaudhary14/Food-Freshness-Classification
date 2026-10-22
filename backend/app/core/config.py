@@ -1,5 +1,16 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
+
+_CONFIG_DIR = Path(__file__).resolve().parent
+_BACKEND_DIR = _CONFIG_DIR.parent.parent
+_ROOT_DIR = _BACKEND_DIR.parent
+_ENV_FILES = [
+    str(_ROOT_DIR / '.env'),
+    str(_BACKEND_DIR / '.env'),
+    '.env',
+    '../.env'
+]
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = 'Food Freshness API'
@@ -19,6 +30,6 @@ class Settings(BaseSettings):
     SMTP_USERNAME: Optional[str] = None
     SMTP_PASSWORD: Optional[str] = None
 
-    model_config = SettingsConfigDict(env_file='../.env', env_file_encoding='utf-8', extra='ignore')
+    model_config = SettingsConfigDict(env_file=_ENV_FILES, env_file_encoding='utf-8', extra='ignore')
 
 settings = Settings()

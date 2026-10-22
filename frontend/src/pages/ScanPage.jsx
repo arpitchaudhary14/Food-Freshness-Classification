@@ -75,8 +75,9 @@ export default function ScanPage() {
     
     try {
       const data = await apiService.predict(file);
+      const foodName = data.category || 'Food';
       const scanData = {
-        item: data.category || 'Unknown Produce',
+        item: foodName,
         verdict: data.freshness.toUpperCase(),
         confidence: data.confidence,
         imageUrl: preview
@@ -207,7 +208,7 @@ export default function ScanPage() {
             {!result && !loading ? (
               <div className="flex flex-col items-center justify-center h-[200px] text-gray-400 opacity-50 text-center">
                 <Leaf className="w-12 h-12 mb-3" />
-                <p>Upload a document to see extracted data and freshness classification.</p>
+                <p>Upload a food image to see freshness classification and AI insights.</p>
               </div>
             ) : loading ? (
               <div className="space-y-4 animate-pulse">
@@ -219,7 +220,7 @@ export default function ScanPage() {
             ) : result ? (
               <div className="space-y-6 animate-in fade-in zoom-in duration-300">
                 <div>
-                  <p className="text-gray-400 text-sm uppercase tracking-wider font-semibold mb-1">Identified Produce</p>
+                  <p className="text-gray-400 text-sm uppercase tracking-wider font-semibold mb-1">Food Name</p>
                   <p className="text-2xl font-display font-bold">{result.item}</p>
                 </div>
                 

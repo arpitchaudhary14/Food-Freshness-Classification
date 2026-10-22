@@ -1,19 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, TrendingUp, AlertTriangle, UploadCloud, Scan, Cpu, CheckCircle2 } from 'lucide-react';
+import { apiService } from '../services/apiService';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({ total: 0, freshRate: 0, rottenRate: 0 });
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem('freshfind_history') || '[]');
-    if (data.length > 0) {
-      const freshCount = data.filter(d => d.verdict === 'FRESH').length;
-      setStats({
-        total: data.length,
-        freshRate: Math.round((freshCount / data.length) * 100),
-        rottenRate: Math.round(((data.length - freshCount) / data.length) * 100)
-      });
-    }
+    const loadStats = async () => {
+      try {
+        const backendHistory = await apiService.getHistory();
+        if (backendHistory && backendHistory.length > 0) {
+          const freshCount = backendHistory.filter(d => d.verdict === 'FRESH').length;
+          setStats({
+            total: backendHistory.length,
+            freshRate: Math.round((freshCount / backendHistory.length) * 100),
+            rottenRate: Math.round(((backendHistory.length - freshCount) / backendHistory.length) * 100)
+          });
+          return;
+        }
+      } catch (e) {
+        // Fallback to localStorage if offline or not logged in
+      }
+
+      const data = JSON.parse(localStorage.getItem('freshfind_history') || '[]');
+      if (data.length > 0) {
+        const freshCount = data.filter(d => d.verdict === 'FRESH').length;
+        setStats({
+          total: data.length,
+          freshRate: Math.round((freshCount / data.length) * 100),
+          rottenRate: Math.round(((data.length - freshCount) / data.length) * 100)
+        });
+      }
+    };
+    loadStats();
   }, []);
 
   return (

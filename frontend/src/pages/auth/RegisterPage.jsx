@@ -3,9 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Input } from '../../components/ui/Input';
 import { authService } from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function RegisterPage() {
   const { login } = useAuth();
+  const { addToast } = useToast();
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -58,12 +61,12 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <Input 
           label="Full Name" 
-          placeholder="John Doe"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="Jane Doe" 
+          value={form.name} 
+          onChange={(e) => setForm({ ...form, name: e.target.value })} 
           error={errors.name}
           disabled={loading}
         />
@@ -106,6 +109,38 @@ export default function RegisterPage() {
           {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
+
+      <div className="mt-4 relative flex items-center py-4">
+        <div className="flex-grow border-t border-cream-200"></div>
+        <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase tracking-wider font-semibold">Or</span>
+        <div className="flex-grow border-t border-cream-200"></div>
+      </div>
+
+      <div className="flex justify-center mt-2">
+        <GoogleLogin
+          onSuccess={async (credentialResponse) => {
+            try {
+              setLoading(true);
+              if (!credentialResponse?.credential) {
+                throw new Error('Google did not return credentials. Please try again.');
+              }
+              const response = await authService.googleLogin(credentialResponse.credential);
+              login(response.user, response.access_token);
+              addToast('Signed up with Google successfully');
+              navigate('/dashboard');
+            } catch (err) {
+              setGeneralError(err.message || 'Failed to sign up with Google');
+            } finally {
+              setLoading(false);
+            }
+          }}
+          onError={() => {
+            setGeneralError('Google Sign-In was cancelled or failed to initialize.');
+          }}
+          theme="filled_blue"
+          shape="pill"
+        />
+      </div>
 
       <p className="mt-8 text-center text-sm text-gray-500 font-medium">
         Already have an account? <Link to="/auth/login" className="text-sage-600 hover:text-sage-700 hover:underline">Sign in</Link>

@@ -93,7 +93,7 @@ export default function HistoryPage() {
             <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
               type="text" 
-              placeholder="Search by produce type or scan ID..." 
+              placeholder="Search by food name or scan ID..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-xl border border-cream-200 focus:outline-none focus:ring-2 focus:ring-sage-500/20 focus:border-sage-500 bg-white disabled:opacity-50"
@@ -121,7 +121,7 @@ export default function HistoryPage() {
               <Inbox className="w-8 h-8 text-cream-500" />
             </div>
             <h3 className="font-semibold text-navy-900 text-lg mb-1">No Scans Yet</h3>
-            <p className="max-w-sm">You haven't scanned any produce yet. Head over to New Scan to test the AI.</p>
+            <p className="max-w-sm">You haven't scanned any food yet. Head over to New Scan to test the AI.</p>
           </div>
         ) : filteredData.length === 0 ? (
            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-gray-500">
@@ -147,7 +147,7 @@ export default function HistoryPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                            <div>
-                              <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Produce</p>
+                              <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-1">Food Name</p>
                               <p className="font-medium text-navy-900">{selectedScan.item}</p>
                            </div>
                            <div>

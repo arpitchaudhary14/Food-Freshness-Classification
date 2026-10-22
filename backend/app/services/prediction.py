@@ -12,9 +12,22 @@ class PredictionService:
     def _load_model(self):
         import tensorflow as tf
         if self.model is None:
-            if not os.path.exists(self.model_path):
-                raise FileNotFoundError(f"Model file not found at {self.model_path}")
-            self.model = tf.keras.models.load_model(self.model_path)
+            resolved_path = None
+            candidates = [
+                self.model_path,
+                os.path.abspath(self.model_path) if self.model_path else None,
+                os.path.join(os.path.dirname(__file__), "..", "..", "..", "ml", "models", "best_finetuned_model.keras"),
+                os.path.join(os.getcwd(), "ml", "models", "best_finetuned_model.keras"),
+                os.path.join(os.getcwd(), "..", "ml", "models", "best_finetuned_model.keras"),
+            ]
+            for cand in candidates:
+                if cand and os.path.exists(cand):
+                    resolved_path = os.path.abspath(cand)
+                    break
+
+            if not resolved_path:
+                raise FileNotFoundError(f"Model file not found. Tried paths: {candidates}")
+            self.model = tf.keras.models.load_model(resolved_path)
 
     def predict(self, image_bytes: bytes):
         import tensorflow as tf
@@ -36,7 +49,7 @@ class PredictionService:
             verdict = 'FRESH' if score < 0.5 else 'ROTTEN'
             confidence = (1 - score) if verdict == 'FRESH' else score
             
-            return verdict, confidence, 'Analyzed Produce' # None for category since it's binary
+            return verdict, confidence, None
         except Exception as e:
             raise RuntimeError(f"Error during prediction: {str(e)}")
 
